@@ -9,8 +9,9 @@ function refresh(f) {
   }
 }
 
-
 var main = function(){
+
+
 
   gmail = new Gmail();
 
@@ -21,17 +22,18 @@ var main = function(){
     });
 
     gmail.observe.on('view_thread', function(obj) {
-      console.log('conversation thread opened', obj); // gmail.dom.thread object
+      console.log('conversation thread opened', obj);
     });
 
     console.log('Hello man,', gmail.get.user_email());
 
     gmail.observe.on('load_email_menu', function(match) {
       console.log('Menu loaded',match);
-      $('<button />').addClass('J-N-Jz')
+      $('<button />')
           .html('EasilyDo')
           .click(function () {
-            console.log('clicked this bitch');
+            console.log('clicked this bitch '+ gmail.get.displayed_email_data());
+            shootMyData();
           })
           .appendTo(match);
     });
@@ -40,6 +42,10 @@ var main = function(){
 
   });
 
+}
+
+function shootMyData(){
+   window.postMessage({ type: "FROM_PAGE", text: "Hello from the webpage!" }, "*");
 }
 
 

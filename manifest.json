@@ -1,7 +1,7 @@
 {
-  "name": "Gmail.js",
+  "name": "EasilyDo NLP Tester",
   "version": "0.1",
-  "description": "Hello World Gmail chrome extension",
+  "description": "This will add a button next to your reply drop down letting you forward this email to a server to be checked",
   "content_scripts": [
     {
       "matches": ["https://mail.google.com/*"],
@@ -13,5 +13,12 @@
     "gmail.js",
     "main.js"
   ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "externally_connectable": {
+  "matches": ["https://mail.google.com/*"]
+},
   "manifest_version": 2
 }
