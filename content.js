@@ -21,7 +21,7 @@ window.addEventListener("message", function(event) {
 
   if (event.data.type && (event.data.type == "FROM_PAGE")) {
     console.log("Content script received: " + event.data.text);
-    chrome.runtime.sendMessage({Message: "getTextFile"}, function (response) {
+    chrome.runtime.sendMessage({Message: "getTextFile", text:event.data.text, email_id:event.data.email_id}, function (response) {
     });
   }
 }, false);

@@ -32,8 +32,11 @@ var main = function(){
       $('<button />')
           .html('EasilyDo')
           .click(function () {
-            console.log('clicked this bitch '+ gmail.get.displayed_email_data());
-            shootMyData();
+            console.log('clicked this bitch ');
+            var JSONObject = gmail.get.email_data();
+            var email_number = JSONObject.first_email;
+            var email_content = JSONObject.threads[email_number].content_plain;
+            shootMyData(email_content, email_number);
           })
           .appendTo(match);
     });
@@ -44,8 +47,8 @@ var main = function(){
 
 }
 
-function shootMyData(){
-   window.postMessage({ type: "FROM_PAGE", text: "Hello from the webpage!" }, "*");
+function shootMyData(data, email_num){
+   window.postMessage({ type: "FROM_PAGE", text: data, email_id: email_num }, "*");
 }
 
 
