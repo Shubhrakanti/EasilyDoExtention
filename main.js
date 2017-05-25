@@ -11,6 +11,16 @@ function refresh(f) {
 
 var main = function(){
 
+  var _position = {
+         rightPart: "[role='complementary']",
+         rightSideContainer: ".Bu.y3 [role='complementary']>.nH",
+         curPage: "[role='main']",
+         attachmentButtonContainer: "[download_url]",
+         attachmentName: ".aSH .a12 .aV3.a6U",
+         attachmentButton: ".aSH",
+         expandButton: "[alt='Expand all']",
+         cloudStorageButtonContainer: "#\\:5 .G-atb>.iH>div"
+     };
 
 
   gmail = new Gmail();
@@ -18,7 +28,13 @@ var main = function(){
   gmail.observe.on("load", function(){
 
     gmail.observe.on('view_email', function(obj) {
+      var $curPage = $(_position.curPage);
+      var $rightSideContainer = $curPage.find(_position.rightSideContainer);
+      $rightSideContainer.html('<div class="sexy">' +
+                                    'empty result' +
+                                '</div>');
     console.log('individual email opened', obj);
+
     });
 
     gmail.observe.on('view_thread', function(obj) {
