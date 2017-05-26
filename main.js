@@ -28,8 +28,10 @@ var main = function(){
   gmail.observe.on("load", function(){
 
     gmail.observe.on('view_email', function(obj) {
+
       var $curPage = $(_position.curPage);
       var $rightSideContainer = $curPage.find(_position.rightSideContainer);
+      debugger;
       $rightSideContainer.html('<div class="sexy">' +
                                     'empty result' +
                                 '</div>');
