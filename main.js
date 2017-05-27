@@ -25,18 +25,28 @@ var main = function(){
 
   gmail = new Gmail();
 
+  // when page load, it will step into this callback
   gmail.observe.on("load", function(){
+      debugger;
 
+    // it has stepped into this callback, but the view email don't load yet, it just call when get the signal the page will be into view email page.
     gmail.observe.on('view_email', function(obj) {
 
-      var $curPage = $(_position.curPage);
-      var $rightSideContainer = $curPage.find(_position.rightSideContainer);
-      debugger;
-      $rightSideContainer.html('<div class="sexy">' +
-                                    'empty result' +
-                                '</div>');
-    console.log('individual email opened', obj);
-
+        function showContent() {
+           var $curPage = $(_position.curPage);
+           if ($curPage) {
+               var $rightSideContainer = $curPage.find(_position.rightSideContainer);
+               $rightSideContainer.html('<div>' +
+                        '<html>Is this email about a meeting?</html>'+
+                        '<button type="button" class="">Yes</button>' +
+                        '<button type="button">No</button>' +
+                    '</div>');
+               console.log('individual email opened', obj);
+           } else {
+               setTimeout(showContent, 10);
+           }
+        }
+        setTimeout(showContent, 10);
     });
 
     gmail.observe.on('view_thread', function(obj) {
