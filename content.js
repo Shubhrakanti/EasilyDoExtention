@@ -15,17 +15,23 @@ s.src = chrome.extension.getURL('main.js');
 var port = chrome.runtime.connect();
 
 window.addEventListener("message", function(event) {
-  // We only accept messages from ourselves
   if (event.source != window)
     return;
 
   if (event.data.type && (event.data.type == "FROM_PAGE")) {
-    console.log("Content script received: " + event.data.text);
-    chrome.runtime.sendMessage({Message: "getTextFile", text:event.data.text, email_id:event.data.email_id}, function (response) {
+    chrome.runtime.sendMessage({Message: "sendEmail", text:event.data.text, email_id:event.data.email_id}, function (response) {
+    });
+  }
+
+  if (event.data.type && (event.data.type == "FROM_PAGE_2")) {
+    chrome.runtime.sendMessage({Message: "sendUserInput", text:event.data.text, email_id:event.data.email_id}, function (response) {
     });
   }
 }, false);
 
 chrome.runtime.onMessage.addListener (function (request, sender, sendResponse) {
-    alert("Contents Of Text File = " + request.fileData);
+    if(request.message && (request.message == "Result")){
+      console.log(request.answer);
+      window.postMessage({ type: "TO_PAGE", text: request.answer}, "*");
+    }
 });

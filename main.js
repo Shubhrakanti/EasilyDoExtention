@@ -1,5 +1,11 @@
 var gmail;
 
+var _position = {
+      rightPart: "[role='complementary']",
+      rightSideContainer: ".Bu.y3 [role='complementary']>.nH",
+      curPage: "[role='main']",
+  };
+
 
 function refresh(f) {
   if( (/in/.test(document.readyState)) || (typeof Gmail === undefined) ) {
@@ -11,73 +17,91 @@ function refresh(f) {
 
 var main = function(){
 
-  var _position = {
-         rightPart: "[role='complementary']",
-         rightSideContainer: ".Bu.y3 [role='complementary']>.nH",
-         curPage: "[role='main']",
-         attachmentButtonContainer: "[download_url]",
-         attachmentName: ".aSH .a12 .aV3.a6U",
-         attachmentButton: ".aSH",
-         expandButton: "[alt='Expand all']",
-         cloudStorageButtonContainer: "#\\:5 .G-atb>.iH>div"
-     };
-
-
   gmail = new Gmail();
-
-  // when page load, it will step into this callback
   gmail.observe.on("load", function(){
-      debugger;
-
-    // it has stepped into this callback, but the view email don't load yet, it just call when get the signal the page will be into view email page.
-    gmail.observe.on('view_email', function(obj) {
-
-        function showContent() {
-           var $curPage = $(_position.curPage);
-           if ($curPage) {
-               var $rightSideContainer = $curPage.find(_position.rightSideContainer);
-               $rightSideContainer.html('<div>' +
-                        '<html>Is this email about a meeting?</html>'+
-                        '<button type="button" class="">Yes</button>' +
-                        '<button type="button">No</button>' +
-                    '</div>');
-               console.log('individual email opened', obj);
-           } else {
-               setTimeout(showContent, 10);
-           }
-        }
-        setTimeout(showContent, 10);
-    });
-
-    gmail.observe.on('view_thread', function(obj) {
-      console.log('conversation thread opened', obj);
-    });
-
-    console.log('Hello man,', gmail.get.user_email());
-
-    gmail.observe.on('load_email_menu', function(match) {
-      console.log('Menu loaded',match);
-      $('<button />')
-          .html('EasilyDo')
-          .click(function () {
-            console.log('clicked this bitch ');
-            var JSONObject = gmail.get.email_data();
-            var email_number = JSONObject.first_email;
-            var email_content = JSONObject.threads[email_number].content_plain;
-            shootMyData(email_content, email_number);
-          })
-          .appendTo(match);
-    });
-
-
-
+    active();
+    $(window).on('hashchange', active);
   });
 
 }
-
-function shootMyData(data, email_num){
-   window.postMessage({ type: "FROM_PAGE", text: data, email_id: email_num }, "*");
+function active(){
+  if(gmail.check.is_inside_email){
+    checkForEmail();
+  }
 }
 
+function checkForEmail() {
+   var $curPage = $(_position.curPage);
+   if ($curPage.find(_position.rightSideContainer)) {
+      var $rightSideContainer = $curPage.find(_position.rightSideContainer);
+      var JSONObject = gmail.get.email_data();
+      try {
+        var JSONObject = gmail.get.email_data();
+        var email_number = JSONObject.first_email;
+        var email_content = JSONObject.threads[email_number].content_plain;
+        shootInitialData(email_content,email_number);
+      } catch (e) {
+
+      }
+   } else {
+       setTimeout(showContent, 10);
+   }
+}
+
+function shootInitialData(data, email_num){
+   window.postMessage({ type: "FROM_PAGE", text: data, email_id: email_num}, "*");
+}
+
+window.addEventListener("message", function(event) {
+
+  if (event.source != window)
+    return;
+  if (event.data.type && (event.data.type == "TO_PAGE")) {
+    showResult(event.data.text);
+  }
+}, false);
+
+function showResult(data){
+  if(data == 0){
+    var text = "This email is NOT about a meeting. Is that correct?"
+    var correct = 0;
+    var incorrect = 1;
+  } else if (data == 1){
+    var text = "This email is about a meeting. Is that correct?"
+    var correct = 1;
+    var incorrect = 0;
+  } else {
+    console.log("we didn't get the right response to main.js");
+    return;
+  }
+  var $curPage = $(_position.curPage);
+  if ($curPage.find(_position.rightSideContainer)){
+    var JSONObject = gmail.get.email_data();
+    var email_number = JSONObject.first_email;
+    var $rightSideContainer = $curPage.find(_position.rightSideContainer);
+    $rightSideContainer.prepend('<div class="extension">' +
+            '<html>'+text+'</html>'+
+            '<button type="button" class="yes_button">Yes</button>' +
+            '<button type="button" class="no_button">No</button>' +
+        '</div>');
+    var yButton = $rightSideContainer.find('.yes_button');
+    yButton.click(function() {
+      shootUserData(correct, email_number);
+      yButton.css("background-color","yellow");
+      nButton.css("background-color","inherit");
+    });
+    var nButton = $rightSideContainer.find('.no_button');
+    nButton.click(function() {
+      shootUserData(incorrect, email_number);
+      nButton.css("background-color","yellow");
+      yButton.css("background-color","inherit");
+    });
+  }
+
+}
+
+function shootUserData(data, email_number){
+  window.postMessage({ type: "FROM_PAGE_2", text: data, email_id: email_number}, "*");
+}
 
 refresh(main);
